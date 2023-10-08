@@ -6,7 +6,8 @@ def test_create_user(client, user, monkeypatch):
     mock_send_email = MagicMock()
     monkeypatch.setattr('src.routes.auth.send_email', mock_send_email)
     response = client.post(
-        '/api/auth/signup'
+        '/api/auth/signup',
+        json={'email': user.get('email'), 'password': user.get('password'), 'username': user.get('username')}
     )
     assert response.status_code == 201, response.text
     data = response.json()
@@ -16,14 +17,14 @@ def test_create_user(client, user, monkeypatch):
 def test_repeat_create_user(client, user):
     response = client.post(
         '/api/auth/login',
-        data={'username': user.get('email'), 'password': user.get('password')}
+        data={'username': user.get('email'), 'password': user.get('password')},
     )
     assert response.status_code == 401, response.text
     data = response.json()
-    assert data['detail'] == 'Email not confrimed'
+    assert data['detail'] == 'Email not confirmed'
 
 def test_login_user_not_confirmed(client, session, user):
-    current_user: User = session.query(User).filter(User.email == user.get('email'))
+    current_user: User = session.query(User).filter(User.email == user.get('email')).first()
     current_user.confirmed = True
     session.commit()
     response = client.post(
@@ -65,7 +66,3 @@ def test_login_wrong_email(client, user):
     assert response.status_code == 401, response.text
     data = response.json()
     assert data["detail"] == "Invalid email"
-
-
-
-

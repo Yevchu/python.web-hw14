@@ -1,5 +1,5 @@
 import pytest
-from fastapi import FastAPI
+
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -7,7 +7,6 @@ from sqlalchemy.orm import sessionmaker
 from main import app
 from src.database.models import Base
 from src.database.db import get_db
-
 
 SQLALCHEMY_DATABASE_URL = 'sqlite:///./test.db'
 
@@ -19,7 +18,7 @@ TestSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 @pytest.fixture(scope='module')
 def session():
     Base.metadata.drop_all(bind=engine)
-    Base.metadata.create_engine(bind=engine)
+    Base.metadata.create_all(bind=engine)
 
     db = TestSessionLocal()
     try:
